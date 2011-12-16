@@ -1,0 +1,152 @@
+h1 Tic-Tac-Toe
+div(style="width:100%;height:100%; border:1px dashed #000;min-height: 50px;overflow:hidden;margin:auto;", id="zone")
+  span(style="float:left")
+    h1(id='stats')
+      span(id="turn")
+  
+  span(style="float:right")
+    h1(id='p1') Waiting...
+    h1(id='p2') Waiting... 
+p &nbsp;
+table(width='100%', border='1')
+  tr
+    td(width='33%',id='0-0')
+    td(width='33%',id='0-1')
+    td(width='33%',id='0-2')
+  tr
+    td(width='33%',id='1-0') 
+    td(width='33%', id='1-1')
+    td(width='33%', id='1-2') 
+  tr
+    td(width='33%', id='2-0')
+    td(width='33%', id='2-1')
+    td(width='33%', id='2-2')
+
+script
+  var xo = 'x';
+  var gameover = false;
+  var startGame = false;
+  
+  function mark(cords)
+  {
+    if(startGame)
+    {
+      if(player.mark != xo)
+      {
+         $("#stats").html('Not your turn').hide().fadeIn(1000).fadeOut(1000);
+      }
+      else
+      {
+        if($(cords).html() == '')
+        {
+          socket.emit("process_move", cords);
+        }
+        else
+        {
+          $("#stats").html('Invalid move').hide().fadeIn(1000).fadeOut(1000);
+        }
+      }
+    }
+    else
+    {
+      $("#stats").html('Pending extra player...').hide().fadeIn(1000).fadeOut(1000);
+    }
+  }
+  
+  socket.on('mark', function(sq)
+  {
+      sq = '#' + sq;
+      if($(sq).html() == '')
+      {
+        if( xo == 'x')
+        {
+          $(sq).html('X');
+          xo = 'o';
+          $(sq).css('color','red');
+        }
+        else
+        {
+          $(sq).html('O');
+          $(sq).css('color','blue');
+          xo = 'x';
+        }  
+     }
+  });
+  
+  $('#0-0').click(function()
+  {
+    mark("#0-0");
+  });
+  $('#0-1').click(function()
+  {
+    mark("#0-1");
+  });
+  $('#0-2').click(function()
+  {
+    mark("#0-2");
+  });
+  // Second row
+  $('#1-0').click(function()
+  {
+    mark("#1-0");
+  });
+  $('#1-1').click(function()
+  {
+    mark("#1-1");
+  });
+  $('#1-2').click(function()
+  {
+    mark("#1-2");
+  });
+  // Third Row
+  $('#2-0').click(function()
+  {
+    mark("#2-0");
+  });
+  $('#2-1').click(function()
+  {
+    mark("#2-1");
+  });
+  $('#2-2').click(function()
+  {
+    mark("#2-2");
+  });
+  
+  socket.on('load', function(data)
+  {
+     var x = 0;
+     var showedX, showedO = false;
+     console.log(data);
+     while( x < data.length )
+     {
+       if(data[x].mark == 'x')
+       {
+         $("#p1").html(data[x].name + ": <span style='color:red'>X</span>");
+         showedX = true;
+       }
+       else if(data[x].mark == 'o')
+       {
+         $("#p2").html(data[x].name + ": <span style='color:blue'>O</span>");
+         showedO = true;
+       }
+       x++;
+     }
+     
+     if(!showedX) $("#p1").html("Waiting...");
+     if(!showedO) $("#p2").html("Waiting...");
+     
+     if(showedX && showedO) startGame = true;
+     
+  });
+  
+  socket.on('connect_1', function(data){
+    player.id = data.id;
+    player.name = data.name;
+    player.mark = data.mark;
+
+  });
+  
+  socket.on('gameover', function(data){
+    gameover = true;
+    $("#stats").html("Game Over!").hide().fadeIn(1000);
+  });

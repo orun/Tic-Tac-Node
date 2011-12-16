@@ -1,0 +1,24 @@
+!!!
+html
+  head
+    title Tic-Tac-Toe
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src='socket.io/socket.io.js')
+    script(src='http://code.jquery.com/jquery-1.6.2.min.js')
+    script
+     var socket = io.connect('http://localhost:3000');
+      
+     var player = {
+       id: 0,
+       name: prompt("Enter your name:"),
+       mark: 'x'
+     }
+     
+     if( player.name == '' ) player.name = 'Anonymous';
+     
+     socket.on('connect', function () {
+       socket.emit('client_connected', player);
+     });
+      
+      
+  body!=body
